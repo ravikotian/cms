@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppContext } from '../../../context';
 import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFacebook, faInstagram, faLinkedinIn, faTwitter } from '@fortawesome/free-brands-svg-icons'
@@ -16,7 +17,15 @@ const Footer = () => {
             <Row className="col-md-11 mx-auto">
                 <Row className="align-items-center footerInfo">
                     {
-                        footerInfo.map(data => <FooterInfo data={data} key={data.id}/>)
+                        (() => {
+                            const { siteSettings = {} } = useAppContext().state;
+                            return footerInfo.map(data => {
+                                if (data.id === 1) {
+                                    return <FooterInfo data={{ ...data, info1: siteSettings.siteName || data.info1 }} key={data.id} />
+                                }
+                                return <FooterInfo data={data} key={data.id} />
+                            })
+                        })()
                     }
                 </Row>
                 <Col md={6} lg={3} className="fAboutUs">

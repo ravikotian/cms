@@ -6,6 +6,7 @@ import Order from './Order';
 import './OrderList.css'
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase-config"; // ensure path is correct
+import { apiPatch } from '../../../utils/apiClient';
 const OrderList = () => {
     const [orders, setOrders] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
@@ -21,8 +22,9 @@ const [services, setServices] = useState([]);
 
     const handleAction = (id, status) => {
         setIsUpdated(true)
-        axios.patch(`https://immense-river-40491.herokuapp.com/statusUpdate/${id}`, {status: status })
-        .then(res => res.data && setIsUpdated(false))
+        apiPatch(`/statusUpdate/${id}`, {status: status }).then(res => {
+            if (res) setIsUpdated(false);
+        })
     }
     
     return (

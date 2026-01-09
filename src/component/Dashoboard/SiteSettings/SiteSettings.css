@@ -1,0 +1,3 @@
+.site-settings img { max-width: 180px; max-height: 80px; object-fit: contain; border: 1px solid #e2e8f0; padding: 6px; background: #fff; }
+.site-settings { padding: 1rem; }
+.site-settings .preview { margin-top: 0.5rem; }

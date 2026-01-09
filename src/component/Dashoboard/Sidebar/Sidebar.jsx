@@ -2,25 +2,29 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faShoppingCart, faCommentAlt, faUserPlus, faCog, faFileMedical, faList, faUserCircle} from '@fortawesome/free-solid-svg-icons'
+import { faShoppingCart, faCommentAlt, faUserPlus, faCog, faFileMedical, faList, faUserCircle, faImage } from '@fortawesome/free-solid-svg-icons'
 import { faBuffer } from '@fortawesome/free-brands-svg-icons';
 import { useAppContext } from '../../../context';
 
 const Sidebar = ({setTitle}) => {
-    const { state: { admin } } = useAppContext()
+    const { state: { admin, siteSettings = {} } } = useAppContext()
 
     return (
         <div>
             <div className="sideBrand">
                 <div className="sideBrnIcon">
-                    <FontAwesomeIcon icon={faBuffer}/>
-                    </div>
-                <h2>Easy <span className="navHighlight">Consulting</span></h2>
+                    {siteSettings.siteLogo ? (
+                        <img src={siteSettings.siteLogo} alt={siteSettings.siteName || 'Brand'} style={{height:36}} />
+                    ) : (
+                        <FontAwesomeIcon icon={faBuffer}/>
+                    )}
+                </div>
+                <h2>{siteSettings.siteName ? (<>{siteSettings.siteName}</>) : <>Easy <span className="navHighlight">Consulting</span></>}</h2>
             </div>
             <nav id="sideNavbar">
                 <ul>    
                         <li>
-                            <NavLink onClick={() => setTitle('Profile')} activeclassname="activePage" exact to="/dashboard/profile">
+                            <NavLink onClick={() => setTitle('Profile')} className={({isActive}) => isActive ? 'activePage' : ''} to="/dashboard/profile">
                                 <FontAwesomeIcon icon={faUserCircle} className="iconC"/> 
                                 Profile
                             </NavLink>
@@ -33,16 +37,17 @@ const Sidebar = ({setTitle}) => {
                                     Order list
                                 </NavLink>
                             </li>
-                            <li>
-                                <NavLink onClick={() => setTitle('Add Service')} activeclassname="activePage" to="/dashboard/addService">
-                                    <FontAwesomeIcon icon={faFileMedical} className="iconC"/> 
-                                    Add Service
-                                </NavLink>
-                            </li>
+                            {/* Add Service moved into Manage Services for unified admin flow */}
                             <li>
                                 <NavLink onClick={() => setTitle('Make Admin')} activeclassname="activePage" to="/dashboard/makeAdmin">
                                     <FontAwesomeIcon icon={faUserPlus} className="iconC"/> 
                                     Make Admin
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink onClick={() => setTitle('Site Settings')} activeclassname="activePage" to="/dashboard/siteSettings">
+                                    <FontAwesomeIcon icon={faImage} className="iconC"/> 
+                                    Site Settings
                                 </NavLink>
                             </li>
                             <li>

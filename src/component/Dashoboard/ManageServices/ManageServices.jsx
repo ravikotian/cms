@@ -1,7 +1,6 @@
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import toast from 'react-hot-toast';
@@ -9,7 +8,7 @@ import swal from 'sweetalert';
 import { useAppContext } from '../../../context';
 import TableLoader from '../../Shared/TableOrder/TableOrder';
 import AddService from '../AddService/AddService';
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 
 const ManageServices = () => {
@@ -17,15 +16,25 @@ const ManageServices = () => {
     const [services, setServices] = useState([])
     const [isUpdated, setIsUpdated] = useState(false)
     const [edit, setEdit] = useState(null);
+    const [adding, setAdding] = useState(false);
 
     useEffect(() => {
     const getServices = async () => {
         const querySnapshot = await getDocs(collection(db, "services"));
-        const data = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        const data = querySnapshot.docs.map(d => ({_id: d.id, id: d.id, ...d.data()}));
         setServices(data);
     };
     getServices();
-}, []);
+}, [isUpdated]);
+
+    // hide add/edit form after an update happens
+    useEffect(() => {
+        if (isUpdated) {
+            setEdit(null);
+            setAdding(false);
+            setIsUpdated(false);
+        }
+    }, [isUpdated]);
     
     const checkPermission = (id, action) => {
         const getMainServices = services.slice(0, 6)
@@ -42,50 +51,49 @@ const ManageServices = () => {
         }
     }
 
-    const handleDelete = (id) => {
-        setIsUpdated(false)
-        swal({
+    const handleDelete = async (id) => {
+        setIsUpdated(false);
+        const wantDelete = await swal({
             title: "Are you sure?",
             text: "Are you sure! you want to delete this service?",
             icon: "warning",
             buttons: true,
             dangerMode: true,
-          })
-          .then( wantDelete => {
-            if (wantDelete) {
-                const loading = toast.loading('deleting...Please wait!')
-                axios.delete(`https://immense-river-40491.herokuapp.com/delete/${id}`)
-                .then(res => {
-                    toast.dismiss(loading)
-                    if(res){
-                        setIsUpdated(true);
-                        toast.success('Service has been deleted successfully!');
-                    }
-                    else{
-                        toast.error('Something went wrong, please try again');
-                    }
-                })
-                .catch(err => {
-                    toast.dismiss(loading)
-                    swal({
-                        title: "Failed!",
-                        text: 'Something went wrong, please try again',
-                        icon: "error",
-                      });
-                })
-            } 
-          })
+        });
+
+        if (wantDelete) {
+            const loading = toast.loading('deleting...Please wait!');
+            try {
+                await deleteDoc(doc(db, 'services', id));
+                toast.dismiss(loading);
+                setIsUpdated(prev => !prev);
+                toast.success('Service has been deleted successfully!');
+            } catch (err) {
+                toast.dismiss(loading);
+                swal({
+                    title: "Failed!",
+                    text: 'Something went wrong, please try again',
+                    icon: "error",
+                });
+            }
+        }
     }
 
     return (
         <>
-        { edit ? 
-            <AddService edit={edit} setEdit={setEdit} services={services}/> 
+        { (edit || adding) ? 
+            <AddService edit={edit} setEdit={setEdit} services={services} setIsUpdated={setIsUpdated}/> 
             : 
             services.length === 0 ?
             <TableLoader/>
             :
            <div className="orderList">
+                <div className="d-flex justify-content-between mb-3">
+                    <h5>Services</h5>
+                    <Button onClick={() => setAdding(true)} variant="primary">
+                        <FontAwesomeIcon icon={faPlus} className="me-2" /> New Service
+                    </Button>
+                </div>
                 <Table hover width="100%">
                     <thead>
                         <tr>
@@ -99,9 +107,8 @@ const ManageServices = () => {
                         {
                             services.map(({_id, name, price, description}) => {
                                 let des = description
-                                // let shortDes = des.split(' ').slice(0,5).join(' ')
                                 return(
-                                    <tr>
+                                    <tr key={_id}>
                                         <td>{name}</td>
                                         <td>{des ? des : "Nothing"}</td>
                                         <td>${price}</td>

@@ -13,9 +13,9 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase-config"; 
 
 const Dashboard = () => {
-    const { state: { user, admin }, dispatch } = useAppContext()
+    const { state: { user, admin, siteSettings }, dispatch } = useAppContext()
     const [sideToggle, setSideToggle] = useState(false)
-    const [title, setTitle] = useState('Easy Consulting')
+    const [title, setTitle] = useState(siteSettings && siteSettings.siteName ? siteSettings.siteName : 'Easy Consulting')
     const [services, setServices] = useState([]);
 
    useEffect(() => {
@@ -26,6 +26,28 @@ const Dashboard = () => {
         };
         getServices();
     }, []);
+
+    useEffect(() => {
+        // determine if current user is an admin by checking 'admins' collection
+        const checkAdmin = async () => {
+            try {
+                if (!user || !user.email) return;
+                const adminsSnap = await getDocs(collection(db, 'admins'));
+                const admins = adminsSnap.docs.map(d => d.data().email);
+                const isAdmin = admins.includes(user.email);
+                if (isAdmin !== admin) {
+                    dispatch({ type: SET_ADMIN, payload: isAdmin });
+                }
+            } catch (err) {
+                console.error('Error checking admin status:', err);
+            }
+        };
+        checkAdmin();
+    }, [user, dispatch, admin]);
+
+    useEffect(() => {
+        if (siteSettings && siteSettings.siteName) setTitle(siteSettings.siteName);
+    }, [siteSettings]);
     
     return (
         <div id="dashboard">

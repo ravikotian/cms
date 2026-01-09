@@ -7,11 +7,12 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
 import PopOver from '../PopOver/PopOver';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import { useAppContext } from '../../../context';
 
 
 const NavBar = () => {
-    const { state: { user } } = useAppContext()
+    const { state: { user, siteSettings } } = useAppContext()
     const [isSticky, setSticky] = useState(false)
 
     useEffect(() => {
@@ -29,7 +30,13 @@ const NavBar = () => {
         <Navbar className={`navbar navbar-expand-lg navbar-light ${isSticky ? "navStyle" : "navDefault"}`} expand="lg">
             <Container>
                 <Navbar.Brand as={Link} to="/" onClick={scrollTop} className="navBrn">
-                    <FontAwesomeIcon icon={faBuffer} className="brnIcon" /> Easy <span className="navHighlight">Consulting</span>
+                    {siteSettings && siteSettings.siteLogo ? (
+                        <img src={siteSettings.siteLogo} alt={siteSettings.siteName || 'Easy Consulting'} style={{height: 36}} />
+                    ) : siteSettings && siteSettings.siteName ? (
+                        <span className="brandText">{siteSettings.siteName}</span>
+                    ) : (
+                        <><FontAwesomeIcon icon={faBuffer} className="brnIcon" /> Easy <span className="navHighlight">Consulting</span></>
+                    )}
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav" />
@@ -49,6 +56,9 @@ const NavBar = () => {
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link as={Link} to="/dashboard/profile" className="nav-link">Dashboard</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                            <ThemeToggle />
                         </Nav.Item>
                         <Nav.Item>
                             {

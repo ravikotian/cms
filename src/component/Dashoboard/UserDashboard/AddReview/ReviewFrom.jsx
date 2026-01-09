@@ -7,6 +7,9 @@ import toast from 'react-hot-toast';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import swal from 'sweetalert';
 import { useAppContext } from '../../../../context';
+import { doc, updateDoc, addDoc, collection } from 'firebase/firestore';
+import { db } from '../../../../firebase-config';
+import { apiGet } from '../../../../utils/apiClient';
 
 const ReviewForm = ({setIsUpdated}) => {
     const {state:{user: {email, img}}} = useAppContext()
@@ -15,10 +18,12 @@ const ReviewForm = ({setIsUpdated}) => {
     const [review, setReview] = useState({});
     const {name, address, description} = review;
     useEffect(() => {
-        axios(`https://immense-river-40491.herokuapp.com/userReview/${id}`)
-        .then(res => {
-            setReview(res.data[0]);
-        })
+        // Try to fetch from external API (gracefully fails if unavailable)
+        apiGet(`/userReview/${id}`).then(data => {
+            if (data) {
+                setReview(data[0] || {});
+            }
+        });
     }, [id])
     
     const history = useNavigate ();

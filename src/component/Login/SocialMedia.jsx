@@ -7,9 +7,11 @@ import { loginWithProvider } from './LoginManager';
 import toast from 'react-hot-toast';
 
 const SocialMedia = ({handleResponse}) => {
+    // Initialize Firebase providers
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const fbProvider = new firebase.auth.FacebookAuthProvider();
     const ghProvider = new firebase.auth.GithubAuthProvider();
+    
     const handleSignIn = (provider) => {
         const loading = toast.loading('Please wait...');
         loginWithProvider(provider)
@@ -20,6 +22,10 @@ const SocialMedia = ({handleResponse}) => {
             }
             handleResponse(res)
             toast.dismiss(loading);
+        })
+        .catch(error => {
+            toast.dismiss(loading);
+            toast.error('Authentication failed: ' + (error.message || 'Unknown error'));
         })
     }
     return (

@@ -11,6 +11,7 @@ import { faEdit } from '@fortawesome/free-regular-svg-icons';
 import toast from 'react-hot-toast';
 import swal from 'sweetalert';
 import { useAppContext } from '../../../../context';
+import { apiGet, apiDelete } from '../../../../utils/apiClient';
 
 
 const Review = () => {
@@ -19,10 +20,13 @@ const Review = () => {
     const [isUpdated, setIsUpdated] = useState(false)
     const {_id, name, address, description} = review || {};
     useEffect(() => {
-        axios(`https://immense-river-40491.herokuapp.com/userReview?email=${email}`)
-        .then(res => {
-            setReview(res.data[0]);
-        })
+        apiGet(`/userReview?email=${email}`).then(data => {
+            if (data && data[0]) {
+                setReview(data[0]);
+            } else {
+                setReview({});
+            }
+        });
     }, [email, isUpdated])
 
     const handleDelete = (id) => {
@@ -37,8 +41,7 @@ const Review = () => {
           .then( wantDelete => {
             if (wantDelete) {
                 const loading = toast.loading('deleting...Please wait!')
-                axios.delete(`https://immense-river-40491.herokuapp.com/deleteReview/${id}`)
-                .then(res => {
+                apiDelete(`/deleteReview/${id}`).then(res => {
                     toast.dismiss(loading)
                     if(res){
                         setIsUpdated(true);

@@ -11,7 +11,7 @@ import { db } from "../../../firebase-config";
 
 import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 
-const AddService = ({edit, setEdit, services}) => {
+const AddService = ({edit, setEdit, services, setIsUpdated}) => {
     const { register, handleSubmit, reset } = useForm();
     const [imgURL, setImgURL] = useState(null);
     const [service, setService] = useState({})
@@ -45,6 +45,7 @@ if (edit) {
             toast.success('Service updated successfully');
         }
         setEdit(null);
+        if (typeof setIsUpdated === 'function') setIsUpdated(prev => !prev);
     })
     .catch(error => {
         toast.dismiss(loading);
@@ -60,6 +61,7 @@ if (edit) {
         if (res.id) {
             swal('Success!', 'One new service added successfully', 'success');
             reset();
+            if (typeof setIsUpdated === 'function') setIsUpdated(prev => !prev);
         }
     })
     .catch(error => {
@@ -67,6 +69,8 @@ if (edit) {
         toast.error(error.message);
     });
 }
+
+    };
 
     const handleImgUpload = event => {
         const loading = toast.loading('Image uploading...');
@@ -87,7 +91,7 @@ if (edit) {
         });
     }
     return (
-        <div className="px-2">
+        <div className="px-2 add-service-wrapper fade-in">
             <Form onSubmit={handleSubmit(onSubmit)} className="addServiceForm">
                 <Row className="justify-content-center px-4">
                     <Form.Group as={Col} md={7}>
@@ -139,6 +143,5 @@ if (edit) {
             </Form>
         </div>
     );
-};
 }
 export default AddService;

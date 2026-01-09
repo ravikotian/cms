@@ -1,4 +1,4 @@
-import { SET_ADMIN, SET_SELECTED_SERVICE, SET_USER } from "./actionTypes";
+import { SET_ADMIN, SET_SELECTED_SERVICE, SET_USER, SET_SITE_SETTINGS } from "./actionTypes";
 
 export const reducer = (state, action) => {
   switch (action.type) {
@@ -8,6 +8,8 @@ export const reducer = (state, action) => {
       return { ...state, admin: action.payload };
     case SET_SELECTED_SERVICE:
       return { ...state, selectedService: action.payload };
+    case SET_SITE_SETTINGS:
+      return { ...state, siteSettings: action.payload };
     default:
       return state;
   }

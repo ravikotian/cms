@@ -42,47 +42,43 @@ const Checkout = () => {
   const options = useOptions();
   const { register, handleSubmit, reset } = useForm();
   const onSubmit = async data => {
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!stripe || !elements) return;
     const loading = toast.loading('Please wait...!');
 
     const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card: elements.getElement(CardNumberElement)
+      type: 'card',
+      card: elements.getElement(CardNumberElement),
     });
 
     if (error) {
       toast.dismiss(loading);
-      return swal("Failed!", error.message, "error", { dangerMode: true });
-    }
-    else {
-    const orderData = {
-        ...data,
-        paymentMethod: "card",
-        paymentId: paymentMethod.id,
-        status: "Pending",
-        serviceId: _id,
-        serviceName: name,
-        description: description,
-        img: img,
-        price: price,
-        orderDate: new Date().toLocaleString() // Highly recommended: add a timestamp!
+      return swal('Failed!', error.message, 'error', { dangerMode: true });
     }
 
-    // NEW FIREBASE LOGIC
-    addDoc(collection(db, "orders"), orderData)
-        .then(res => {
-            toast.dismiss(loading);
-            swal("Congratulation!", "Your order has been placed successfully", "success");
-            reset();
-        })
-        .catch(err => {
-            toast.dismiss(loading);
-            console.error("Firebase Order Error: ", err);
-            swal("Failed!", "Something went wrong with the database! please try again", "error");
-        });
-}
+    const orderData = {
+      ...data,
+      paymentMethod: 'card',
+      paymentId: paymentMethod.id,
+      status: 'Pending',
+      serviceId: _id,
+      serviceName: name,
+      description: description,
+      img: img,
+      price: price,
+      orderDate: new Date().toLocaleString(),
+    };
+
+    try {
+      await addDoc(collection(db, 'orders'), orderData);
+      toast.dismiss(loading);
+      swal('Congratulation!', 'Your order has been placed successfully', 'success');
+      reset();
+    } catch (err) {
+      toast.dismiss(loading);
+      console.error('Firebase Order Error: ', err);
+      swal('Failed!', 'Something went wrong with the database! please try again', 'error');
+    }
+  };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -135,5 +131,5 @@ const Checkout = () => {
     </Form>
   );
 };
-}
+
 export default Checkout;

@@ -9,10 +9,12 @@ import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import ListSkeleton from '../../../Shared/TableOrder/ListSkeleton';
 import { useAppContext } from '../../../../context';
 import { collection, getDocs } from "firebase/firestore";
+import { db } from '../../../../firebase-config';
 const BookList = () => {
     const { state:{user} } =useAppContext();
     const [bookings, setBookings] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
+    const [services, setServices] = useState([]);
 
    useEffect(() => {
     const getServices = async () => {

@@ -6,11 +6,14 @@ import Dashboard from "./component/Dashoboard/Dashboard/Dashboard";
 import LoginModal from "./component/Login/LoginModal";
 import PrivateRoute from "./component/Login/PrivateRoute";
 import NotFound from "./component/NotFound";
+import CollectionsInitializer from "./component/CollectionsInitializer/CollectionsInitializer";
+
 export const UserContext = createContext();
 
 const App = () => {
   return (
     <div>
+      <CollectionsInitializer />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

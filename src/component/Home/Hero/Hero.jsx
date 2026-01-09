@@ -1,4 +1,5 @@
 import React from 'react'
+import { useAppContext } from '../../../context';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { alpha, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -14,6 +15,8 @@ const Hero = () => {
     const isMd = useMediaQuery(theme.breakpoints.up('md'), {
         defaultMatches: true,
     });
+    const { state: { siteSettings = {} } } = useAppContext();
+
     return (
         <Grid container spacing={4}>
             <Grid item container xs={12} md={6} alignItems={'center'}>
@@ -24,7 +27,7 @@ const Hero = () => {
                             color="text.primary"
                             sx={{ fontWeight: 700 }}
                         >
-                            Easy Consulting{' '} <br />
+                            {siteSettings.siteName || 'Easy Consulting'}{' '} <br />
                             Start Your {' '}
                             <Typography
                                 color={'primary'}

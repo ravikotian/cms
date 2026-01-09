@@ -1,18 +1,65 @@
 .userReviewBox {
-    background: #f1ecff;
-    padding: 2.5rem 5rem;
-    border-radius: 0.6rem;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    padding: 2rem 1.5rem;
+    border-radius: 1rem;
     text-align: center;
     min-height: 100vh;
 }
+
 .userReviewBox button {
-    margin: 0 0.5rem;
+    margin: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    border: none;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
 }
+
+.userReviewBox button:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
+}
+
 .reviewForm {
     background: white;
-    box-shadow: 0 2px 5px 1px rgb(64 60 67 / 4%);
-    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+    padding: 2.5rem;
     border-radius: 1rem;
     width: 100%;
-    margin: 2.5rem 0;
+    margin: 1.5rem 0;
+    border: 1px solid #e2e8f0;
+}
+
+.reviewForm h3, .reviewForm label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+.reviewForm input,
+.reviewForm textarea {
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    width: 100%;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.reviewForm input:focus,
+.reviewForm textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+.reviewForm input::placeholder,
+.reviewForm textarea::placeholder {
+    color: #94a3b8;
 }
