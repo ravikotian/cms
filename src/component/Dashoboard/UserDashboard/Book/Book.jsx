@@ -7,6 +7,9 @@ import axios from 'axios';
 import ifoIcon from '../../../../Assets/info.svg';
 import Checkout from './Checkout';
 import { SET_SELECTED_SERVICE, useAppContext } from '../../../../context';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../../firebase-config';  
+
 
 const Book = () => {
     const { state: { selectedService }, dispatch} = useAppContext()
@@ -14,14 +17,13 @@ const Book = () => {
     const [show, setShow] = useState(true);
 
     useEffect(() => {
-        axios.get(`https://immense-river-40491.herokuapp.com/services`)
-        .then(res => {
-            setServices(res.data)
-            if(!selectedService.name){
-                dispatch({type: SET_SELECTED_SERVICE, payload: res.data[0]})
-            }
-        })
-    }, [selectedService.name, dispatch])
+    const getServices = async () => {
+        const querySnapshot = await getDocs(collection(db, "services"));
+        const data = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        setServices(data);
+    };
+    getServices();
+}, []);
 
     const handleSelection = e => {
         const getService = services.find(({name}) => e.target.value === name)

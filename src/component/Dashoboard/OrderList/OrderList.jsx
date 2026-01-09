@@ -4,15 +4,20 @@ import { Table } from 'react-bootstrap';
 import TableLoader from '../../Shared/TableOrder/TableOrder';
 import Order from './Order';
 import './OrderList.css'
-
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase-config"; // ensure path is correct
 const OrderList = () => {
     const [orders, setOrders] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
-
+const [services, setServices] = useState([]);
     useEffect(() => {
-        axios.get('https://immense-river-40491.herokuapp.com/orders')
-        .then(res => setOrders(res.data))
-    },[isUpdated])
+    const getServices = async () => {
+        const querySnapshot = await getDocs(collection(db, "services"));
+        const data = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        setServices(data);
+    };
+    getServices();
+}, []);
 
     const handleAction = (id, status) => {
         setIsUpdated(true)

@@ -8,16 +8,20 @@ import './BookList.css'
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import ListSkeleton from '../../../Shared/TableOrder/ListSkeleton';
 import { useAppContext } from '../../../../context';
-
+import { collection, getDocs } from "firebase/firestore";
 const BookList = () => {
     const { state:{user} } =useAppContext();
     const [bookings, setBookings] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
 
-    useEffect(() => {
-        axios.get(`https://immense-river-40491.herokuapp.com/bookingList?email=${user.email}`)
-        .then(res => setBookings(res.data))
-    },[user.email, isUpdated])
+   useEffect(() => {
+    const getServices = async () => {
+        const querySnapshot = await getDocs(collection(db, "services"));
+        const data = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        setServices(data);
+    };
+    getServices();
+}, []);
 
     const handleDelete = (id, status) => {
         setIsUpdated(false)

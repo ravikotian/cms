@@ -3,9 +3,10 @@
 import firebase from 'firebase/compat/app'; //v9
 import 'firebase/compat/auth'; //v9
 // import "firebase/auth";
-import firebaseConfig from "../../firebaseBaseConfig";
-import jwt_decode from "jwt-decode";
+import { firebaseConfig } from '../../firebase-config'; // POINT TO OUR NEW FILE
+// import jwt_decode from "jwt-decode";
 import userImg from '../../Assets/user.svg';
+import jwt_decode from "jwt-decode";
 
 if(!firebase.apps.length){
     firebase.initializeApp(firebaseConfig);

@@ -22,42 +22,46 @@ const ReviewForm = ({setIsUpdated}) => {
     }, [id])
     
     const history = useNavigate ();
-    const onSubmit = data => {
-        const loading = toast.loading('Uploading...Please wait!');
-        const reviewData = {...data};
-            reviewData.email = review.email || email;
-            reviewData.img = review.img || img;
-        if(id){
-            axios.patch(`https://immense-river-40491.herokuapp.com/updateReview/${id}`, reviewData)
+    const onSubmit = async (data) => {
+    const loading = toast.loading('Uploading... Please wait!');
+    const reviewData = { ...data };
+    
+    // Attaching user info if not already in data
+    reviewData.email = review.email || email;
+    reviewData.img = review.img || img;
+
+    try {
+        if (id) {
+            // 1. UPDATE EXISTING REVIEW
+            const reviewRef = doc(db, "reviews", id);
+            await updateDoc(reviewRef, reviewData);
             
-            .then(res => {
-                if(res){
-                    toast.dismiss(loading);
-                    if(
-                        data.name === name &&
-                        data.address === address &&
-                        data.description === description
-                        ){
-                            toast.error("You haven't changed anything")
-                        }else{
-                            toast.success('your review was successful updated!');
-                        }
-                        history('/dashboard/review');
-                }
-            })
-        }else {
-            setIsUpdated(false)
-            axios.post('https://immense-river-40491.herokuapp.com/addReview', reviewData)
-            .then(res => {
-                if(res){
-                    setIsUpdated(true)
-                    toast.dismiss(loading);
-                    swal("Success!", "Your review has been submitted successfully. We appreciate your contirbution.", "success");
-                }
-            })
+            toast.dismiss(loading);
+            // Comparison logic to see if fields actually changed
+            if (data.name === name && data.address === address && data.description === description) {
+                toast.error("You haven't changed anything");
+            } else {
+                toast.success('Your review was successfully updated!');
+            }
+            history('/dashboard/review');
+            
+        } else {
+            // 2. ADD NEW REVIEW
+            setIsUpdated(false);
+            const docRef = await addDoc(collection(db, "reviews"), reviewData);
+            
+            if (docRef.id) {
+                setIsUpdated(true);
+                toast.dismiss(loading);
+                swal("Success!", "Your review has been submitted successfully.", "success");
+            }
         }
         reset();
+    } catch (error) {
+        toast.dismiss(loading);
+        toast.error("Error: " + error.message);
     }
+};
     return (
         <section className='px-3'>
             <div className="mx-auto reviewForm">

@@ -12,7 +12,8 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAppContext } from '../../../../context';
-
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '../../../../firebase-config';
 
 const useOptions = () => {
   const options = useMemo(() => ({
@@ -56,7 +57,7 @@ const Checkout = () => {
       return swal("Failed!", error.message, "error", { dangerMode: true });
     }
     else {
-      const orderData = {
+    const orderData = {
         ...data,
         paymentMethod: "card",
         paymentId: paymentMethod.id,
@@ -65,20 +66,23 @@ const Checkout = () => {
         serviceName: name,
         description: description,
         img: img,
-        price: price
-      }
-      axios.post('https://immense-river-40491.herokuapp.com/addOrder', orderData)
+        price: price,
+        orderDate: new Date().toLocaleString() // Highly recommended: add a timestamp!
+    }
+
+    // NEW FIREBASE LOGIC
+    addDoc(collection(db, "orders"), orderData)
         .then(res => {
-          toast.dismiss(loading);
-          swal("Congratulation!", "Your order has been placed successfully", "success");
-          reset();
+            toast.dismiss(loading);
+            swal("Congratulation!", "Your order has been placed successfully", "success");
+            reset();
         })
         .catch(err => {
-          toast.dismiss(loading);
-          swal("Failed!", "Something went wrong! please try again", "error")
-        })
-    }
-  };
+            toast.dismiss(loading);
+            console.error("Firebase Order Error: ", err);
+            swal("Failed!", "Something went wrong with the database! please try again", "error");
+        });
+}
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -131,5 +135,5 @@ const Checkout = () => {
     </Form>
   );
 };
-
+}
 export default Checkout;

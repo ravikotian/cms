@@ -6,17 +6,24 @@ import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 import SwiperCore, { Autoplay, Pagination } from 'swiper/core'
 import Spinner from '../../Shared/Spinner/Spinner';
-
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase-config";
 const Reviews = () => {
+     const [reviews, setServices] = useState([]);
+    
     SwiperCore.use([Pagination, Autoplay]);
-    const [reviews, setReviews] = useState([])
     useEffect(() => {
-        fetch('https://immense-river-40491.herokuapp.com/reviews')
-        .then(res => res.json())
-        .then(data => {
-            setReviews(data);
-        })
-    }, [])
+    const fetchData = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "services"));
+            const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setServices(data);
+        } catch (error) {
+            console.error("Firestore Error:", error);
+        }
+    };
+    fetchData();
+}, []);
     return (
         <section id="testimonial">
             <h4 className="miniTitle text-center">TESTIMONIALS</h4>

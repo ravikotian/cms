@@ -9,6 +9,8 @@ import swal from 'sweetalert';
 import { useAppContext } from '../../../context';
 import TableLoader from '../../Shared/TableOrder/TableOrder';
 import AddService from '../AddService/AddService';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase-config";
 
 const ManageServices = () => {
     const { state: { email }} = useAppContext()
@@ -17,12 +19,13 @@ const ManageServices = () => {
     const [edit, setEdit] = useState(null);
 
     useEffect(() => {
-        axios.get('https://immense-river-40491.herokuapp.com/services')
-        .then(res => {
-            setServices(res.data);
-            setIsUpdated(false)
-        })
-    }, [isUpdated, edit])
+    const getServices = async () => {
+        const querySnapshot = await getDocs(collection(db, "services"));
+        const data = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        setServices(data);
+    };
+    getServices();
+}, []);
     
     const checkPermission = (id, action) => {
         const getMainServices = services.slice(0, 6)

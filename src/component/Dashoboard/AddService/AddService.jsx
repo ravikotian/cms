@@ -7,6 +7,9 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import swal from 'sweetalert';
 import './AddService.css'
+import { db } from "../../../firebase-config";
+
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 
 const AddService = ({edit, setEdit, services}) => {
     const { register, handleSubmit, reset } = useForm();
@@ -27,35 +30,43 @@ const AddService = ({edit, setEdit, services}) => {
             img: imgURL || img
         }
 
-        if(edit){
-            axios.patch(`https://immense-river-40491.herokuapp.com/updateService/${edit}`, serviceInfo)
-            .then(res =>{
-                toast.dismiss(loading)
-                if( data.name === name  && 
-                    data.price === price &&
-                    data.description === description){
-                        toast.error("You haven't change anything")
-                    }
-                    else{
-                        toast.success('Service updated successfully')
-                    }
-                setEdit(null)
-            })
-        }else{
-            axios.post('https://immense-river-40491.herokuapp.com/addService', serviceInfo)
-            .then(res => {
-                toast.dismiss(loading)
-                if(res.data){
-                    swal('Success!', 'One new service added successfully', 'success')
-                    reset()
-                }
-            })
-            .catch( error => {
-                toast.dismiss(loading)
-                toast.error(error.message)
-            });
+       // Check if we are editing an existing service or adding a new one
+if (edit) {
+    // 1. UPDATE EXISTING SERVICE
+    const serviceDoc = doc(db, "services", edit); // Find the specific document by ID
+    
+    updateDoc(serviceDoc, serviceInfo)
+    .then(() => {
+        toast.dismiss(loading);
+        // Logical check: compare old data vs new info
+        if (data.name === name && data.price === price && data.description === description) {
+            toast.error("You haven't changed anything");
+        } else {
+            toast.success('Service updated successfully');
         }
-    }
+        setEdit(null);
+    })
+    .catch(error => {
+        toast.dismiss(loading);
+        toast.error(error.message);
+    });
+
+} else {
+    // 2. ADD NEW SERVICE
+    addDoc(collection(db, "services"), serviceInfo)
+    .then(res => {
+        toast.dismiss(loading);
+        // Firebase returns a response if successful
+        if (res.id) {
+            swal('Success!', 'One new service added successfully', 'success');
+            reset();
+        }
+    })
+    .catch(error => {
+        toast.dismiss(loading);
+        toast.error(error.message);
+    });
+}
 
     const handleImgUpload = event => {
         const loading = toast.loading('Image uploading...');
@@ -129,5 +140,5 @@ const AddService = ({edit, setEdit, services}) => {
         </div>
     );
 };
-
+}
 export default AddService;

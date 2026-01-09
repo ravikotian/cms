@@ -1,29 +1,39 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import Service from './Service';
-import Spinner from '../../Shared/Spinner/Spinner';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../firebase-config'; // Adjust the number of ../ to reach src
 
 const Services = () => {
-    const [services, setServices] = useState([])
-    
+    const [services, setServices] = useState([]);
+
     useEffect(() => {
-        axios.get('https://immense-river-40491.herokuapp.com/services')
-        .then(res => setServices(res.data))
-    }, [])
+        const fetchServices = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "services"));
+                const data = querySnapshot.docs.map(doc => ({ 
+                    id: doc.id, 
+                    ...doc.data() 
+                }));
+                setServices(data);
+            } catch (error) {
+                console.error("Firebase fetch error:", error);
+            }
+        };
+        fetchServices();
+    }, []);
 
     return (
-        <section id="services" className="services">
-            <h4 className="miniTitle text-center">SERVICES</h4>
-            <div className="text-center">
-                <h5 className="text-center sectionTitle">PROVIDE AWESOME SERVICE</h5>
-            </div>
-            {services.length === 0 && <div className="spinner text-center"><Spinner/></div>}
-            <div className="row mt-4 container mx-auto justify-content-center">
-                {
-                    services?.map((service, id) => <Service key={service._key + id} service={service}/>)
-                }
-            </div>
-        </section>
+        <div className="services-container">
+            {services.length === 0 ? (
+                <p>No services found. Add some in FireCMS!</p>
+            ) : (
+                services.map(service => (
+                    <div key={service.id}>
+                        <h3>{service.name}</h3>
+                        <p>{service.description}</p>
+                    </div>
+                ))
+            )}
+        </div>
     );
 };
 
