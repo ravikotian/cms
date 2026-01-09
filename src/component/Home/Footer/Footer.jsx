@@ -12,20 +12,19 @@ import { scrollUP } from '../../Shared/ScrollTop/ScrollTop';
 
 
 const Footer = () => {
+    const { state: { siteSettings = {} } } = useAppContext();
+
     return (
         <section className='row footer'>
             <Row className="col-md-11 mx-auto">
                 <Row className="align-items-center footerInfo">
                     {
-                        (() => {
-                            const { siteSettings = {} } = useAppContext().state;
-                            return footerInfo.map(data => {
-                                if (data.id === 1) {
-                                    return <FooterInfo data={{ ...data, info1: siteSettings.siteName || data.info1 }} key={data.id} />
-                                }
-                                return <FooterInfo data={data} key={data.id} />
-                            })
-                        })()
+                        footerInfo.map(data => {
+                            if (data.id === 1) {
+                                return <FooterInfo data={{ ...data, info1: siteSettings.siteName || data.info1 }} key={data.id} />
+                            }
+                            return <FooterInfo data={data} key={data.id} />
+                        })
                     }
                 </Row>
                 <Col md={6} lg={3} className="fAboutUs">
